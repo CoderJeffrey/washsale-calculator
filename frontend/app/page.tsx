@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { FileUpload } from "@/components/file-upload";
+import FileUpload04 from "@/components/file-upload-04"; // adjust path to what the CLI created
 
 interface WashSaleResult {
   Ticker: string;
@@ -11,77 +13,68 @@ interface WashSaleResult {
 }
 
 export default function Home() {
-  const [file, setFile] = useState<File | null>(null);
-  const [result, setResult] = useState<{ wash_sales: WashSaleResult[] | string } | null>(null);
+  const [result, setResult] =
+    useState<{ wash_sales: WashSaleResult[] | string } | null>(null);
 
-  const handleUpload = async () => {
-    if (!file) {
-      alert("Please select a CSV file first");
-      return;
-    }
-
+  const handleUpload = async (file: File) => {
     const formData = new FormData();
     formData.append("file", file);
 
-    try {
-      const res = await fetch("http://127.0.0.1:8000/upload/", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await res.json();
-      setResult(data);
-    } catch (err) {
-      console.error(err);
-      alert("Upload failed");
-    }
+    const res = await fetch("http://127.0.0.1:8000/upload/", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await res.json();
+    setResult(data);
   };
 
   return (
-    <main style={{ maxWidth: 600, margin: "2rem auto", textAlign: "center" }}>
-      <h2>Wash Sale Calculator</h2>
-      <input
-        type="file"
-        accept=".csv"
-        onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-      />
-      <button
-        onClick={handleUpload}
-        style={{ marginLeft: "1rem", padding: "0.5rem 1rem" }}
-      >
-        Upload
-      </button>
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <main className="w-full max-w-2xl mx-auto px-4">
+        <div className="text-center space-y-8">
+          <h1 className="text-4xl font-bold tracking-tight text-foreground">
+            Wash Sale Calculator
+          </h1>
 
-      {result && (
-        <div style={{ marginTop: "2rem", textAlign: "left" }}>
-          <h3>Results</h3>
-          {typeof result.wash_sales === "string" ? (
-            <p>{result.wash_sales}</p>
-          ) : (
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr>
-                  <th>Ticker</th>
-                  <th>SellDate</th>
-                  <th>Loss</th>
-                  <th>DisallowedLoss</th>
-                  <th>AdjustedBasisAddedTo</th>
-                </tr>
-              </thead>
-              <tbody>
-                {result.wash_sales.map((row, i) => (
-                  <tr key={i}>
-                    <td>{row.Ticker}</td>
-                    <td>{row.SellDate}</td>
-                    <td>{row.Loss}</td>
-                    <td>{row.DisallowedLoss}</td>
-                    <td>{row.AdjustedBasisAddedTo}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="flex justify-center">
+            <FileUpload04 onUpload={handleUpload} />
+          </div>
+
+          {result && (
+            <div className="mt-10 text-left">
+              <h3 className="text-xl font-medium mb-3 text-foreground">Results</h3>
+              {typeof result.wash_sales === "string" ? (
+                <p className="text-muted-foreground">{result.wash_sales}</p>
+              ) : (
+                <div className="overflow-hidden rounded-lg border">
+                  <table className="min-w-full text-sm">
+                    <thead className="bg-muted">
+                      <tr>
+                        <th className="p-3 text-left font-medium text-muted-foreground">Ticker</th>
+                        <th className="p-3 text-left font-medium text-muted-foreground">SellDate</th>
+                        <th className="p-3 text-left font-medium text-muted-foreground">Loss</th>
+                        <th className="p-3 text-left font-medium text-muted-foreground">DisallowedLoss</th>
+                        <th className="p-3 text-left font-medium text-muted-foreground">AdjustedBasisAddedTo</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {result.wash_sales.map((row, i) => (
+                        <tr key={i} className="hover:bg-muted/50">
+                          <td className="p-3 text-foreground">{row.Ticker}</td>
+                          <td className="p-3 text-foreground">{row.SellDate}</td>
+                          <td className="p-3 text-foreground">{row.Loss}</td>
+                          <td className="p-3 text-foreground">{row.DisallowedLoss}</td>
+                          <td className="p-3 text-foreground">{row.AdjustedBasisAddedTo}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           )}
         </div>
-      )}
-    </main>
+      </main>
+    </div>
   );
 }
