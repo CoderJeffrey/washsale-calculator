@@ -19,7 +19,6 @@ export default function FileUpload04({ onUpload }: Props) {
     uploading: boolean;
   }>({ file: null, progress: 0, uploading: false });
 
-  const [showDummy, setShowDummy] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const validFileTypes = [
@@ -129,35 +128,6 @@ export default function FileUpload04({ onUpload }: Props) {
           <span className="pl-1 sm:pl-0">Max. size: 10MB</span>
         </p>
 
-        {!file && showDummy && (
-          <Card className="relative mt-8 bg-muted p-4 gap-4">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="absolute right-1 top-1 h-8 w-8 text-muted-foreground hover:text-foreground"
-              aria-label="Remove"
-              onClick={() => setShowDummy(false)}
-            >
-              <X className="h-5 w-5 shrink-0" aria-hidden />
-            </Button>
-
-            <div className="flex items-center space-x-2.5">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm bg-background shadow-sm ring-1 ring-inset ring-border">
-                <FileSpreadsheet className="h-5 w-5 text-foreground" aria-hidden />
-              </span>
-              <div>
-                <p className="text-xs font-medium text-foreground">Revenue_Q1_2024.xlsx</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">3.1 MB</p>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-3">
-              <Progress value={45} className="h-1.5" />
-              <span className="text-xs text-muted-foreground">45%</span>
-            </div>
-          </Card>
-        )}
 
         {file && (
           <Card className="relative mt-8 bg-muted p-4 gap-4">

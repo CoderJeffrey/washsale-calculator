@@ -17,19 +17,30 @@ export default function Home() {
     useState<{ wash_sales: WashSaleResult[] | string } | null>(null);
 
   const handleUpload = async (file: File) => {
-    const formData = new FormData();
-    formData.append("file", file);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
 
-    const res = await fetch("http://127.0.0.1:8000/upload/", {
-      method: "POST",
-      body: formData,
-    });
-    const data = await res.json();
-    setResult(data);
+      const res = await fetch("http://127.0.0.1:8000/upload/", {
+        method: "POST",
+        body: formData,
+      });
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
+      const data = await res.json();
+      setResult(data);
+    } catch (error) {
+      console.error("Upload error:", error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setResult({ wash_sales: `Upload failed: ${errorMessage}` });
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="min-h-screen flex items-center justify-center bg-background pb-[5vh]">
       <main className="w-full max-w-2xl mx-auto px-4">
         <div className="text-center space-y-8">
           <h1 className="text-4xl font-bold tracking-tight text-foreground">
@@ -71,6 +82,18 @@ export default function Home() {
                   </table>
                 </div>
               )}
+            </div>
+          )}
+          {typeof result?.wash_sales !== "string" && result?.wash_sales?.length && (
+            <div className="mt-8 p-4 bg-gray-50 rounded-lg border text-right">
+              <p className="text-lg font-semibold text-gray-800">
+                Total Disallowed Loss:&nbsp;
+                <span className="text-red-600">
+                  ${result?.wash_sales
+                    ?.reduce((sum: number, row: any) => sum + row.DisallowedLoss, 0)
+                    .toFixed(2)}
+                </span>
+              </p>
             </div>
           )}
         </div>
