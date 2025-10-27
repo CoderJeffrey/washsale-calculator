@@ -89,8 +89,6 @@ async def upload_csv(file: UploadFile = File(...)):
         return {"wash_sales": "No stock rows (Buy/Sell) found."}
 
     stocks = stocks.sort_values("Date")
-    today = pd.Timestamp.now().normalize()
-
     results = []
 
     # --- Loop through each SELL transaction ---
@@ -139,16 +137,8 @@ async def upload_csv(file: UploadFile = File(...)):
         total_sells_all = float(stocks[(stocks["Ticker"] == tkr) & (stocks["Type"] == "SELL")]["Quantity"].sum())
         net_current_position = max(0.0, total_buys_all - total_sells_all)
 
-        # Determine replacement buys within ±30 days
-        total_bought = float(buys_in_window["Quantity"].sum())
-
-        # Only count replacement shares that still exist in your current holdings
-        still_held_today = min(total_bought, net_current_position)
-        if still_held_today <= 0:
-            continue  # no remaining replacement shares today
-
         # 4️⃣ Compute disallowed loss
-        disallowed_shares = min(qty_sold, still_held_today)
+        disallowed_shares = min(qty_sold, net_current_position)
         disallowed_loss = round(abs(per_share_pl) * disallowed_shares, 2)
         if disallowed_loss > 0:
             results.append({
@@ -159,7 +149,7 @@ async def upload_csv(file: UploadFile = File(...)):
                 "FIFO_AvgCost": round(fifo_cost, 4),
                 "SellPrice": round(sell_px, 4),
                 "ReplacementSharesInWindow": total_bought,
-                "StillHeldToday": still_held_today,
+                "StillHeldToday": net_current_position,
                 "DisallowedLoss": disallowed_loss,
                 "Note": "Loss disallowed because replacement shares bought within ±30 days are still held today."
             })
