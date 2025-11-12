@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
+import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+
+const stackSansNotch = localFont({
+  src: "../fonts/static/StackSansNotch-Regular.ttf",
+  variable: "--font-stack-sans-notch",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Wash Sale Calculator",
@@ -14,7 +21,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="font-sans antialiased" suppressHydrationWarning>
+      <body className={`${stackSansNotch.variable} font-sans antialiased`} suppressHydrationWarning>
         {children}
         <Toaster />
       </body>

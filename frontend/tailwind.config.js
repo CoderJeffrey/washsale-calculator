@@ -56,7 +56,7 @@ module.exports = {
         },
       },
       fontFamily: {
-        sans: ["'Cal Sans'", "sans-serif"],
+        sans: ["var(--font-stack-sans-notch)", "sans-serif"],
       },
     },
   },

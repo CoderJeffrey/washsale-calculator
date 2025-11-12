@@ -39,8 +39,9 @@ def parse_number(x):
     except ValueError:
         return 0.0
 
-def stock_type(trans_code: str) -> str:
-    v = (trans_code or "").strip().lower()
+def stock_type(x) -> str:
+    if pd.isna(x): return ""
+    v = str(x).strip().lower()
     if v == "buy":  return "BUY"
     if v == "sell": return "SELL"
     return ""
@@ -93,7 +94,7 @@ def normalize_symbol(row):
 @app.post("/upload/")
 async def upload_csv(file: UploadFile = File(...)):
     raw = await file.read()
-    df = pd.read_csv(io.BytesIO(raw))
+    df = pd.read_csv(io.BytesIO(raw), on_bad_lines='skip')
 
     # --- Normalize input columns ---
     needed = ["Activity Date","Settle Date","Instrument","Description","Trans Code","Quantity","Price","Amount"]
